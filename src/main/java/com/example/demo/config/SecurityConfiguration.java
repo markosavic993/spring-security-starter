@@ -52,7 +52,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and().csrf().disable()
                 .formLogin() // enables form login
                 .loginPage("/login")
-                .failureUrl("/login?error=true")
+                .failureHandler(new CustomFailureHandler())
+                //.failureUrl("/login?error=true")
                 .successHandler(new CustomSuccessHandler())
                 //.defaultSuccessUrl("/admin/home")
                 .usernameParameter("email")
