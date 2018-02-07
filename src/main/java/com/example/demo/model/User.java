@@ -41,10 +41,7 @@ public class User {
     @NotEmpty(message = "*Please provide your last name.")
     private String lastName;
 
-    @Column(name = "active")
-    private int active;
-
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL) // load all roles every time when user is loaded
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
@@ -96,11 +93,4 @@ public class User {
         this.roles = roles;
     }
 
-    public int getActive() {
-        return active;
-    }
-
-    public void setActive(int active) {
-        this.active = active;
-    }
 }

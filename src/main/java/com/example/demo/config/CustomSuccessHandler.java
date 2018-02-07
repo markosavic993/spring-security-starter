@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+import com.example.demo.service.CustomUserPrinciple;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -39,7 +40,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private void addLoggedInUserInfoToSession(Authentication authentication, HttpSession session) {
-        User authUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CustomUserPrinciple authUser = (CustomUserPrinciple) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         session.setAttribute(LOGGED_IN_USER, authUser.getUsername());
         session.setAttribute(AUTHORITIES, authentication.getAuthorities());
     }
