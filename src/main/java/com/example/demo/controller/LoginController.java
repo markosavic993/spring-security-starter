@@ -61,29 +61,6 @@ public class LoginController {
         return modelAndView;
     }
 
-    @GetMapping(value = "/admin/home")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ModelAndView adminHome() {
-        ModelAndView modelAndView = new ModelAndView();
-        User user = getAuthenticatedUser();
-        modelAndView.addObject("username", "Welcome " + user.getFirstName() + " " + user.getLastName());
-        modelAndView.addObject("adminMessage", "Content available only for users with admin role");
-        modelAndView.setViewName("admin/home");
-
-        return modelAndView;
-    }
-
-    @GetMapping(value = "user/home")
-    public ModelAndView userHome() {
-        ModelAndView modelAndView = new ModelAndView();
-        User user = getAuthenticatedUser();
-        modelAndView.addObject("username", "Welcome " + user.getFirstName() + " " + user.getLastName());
-        modelAndView.addObject("userMessage", "Content available for logged in users");
-        modelAndView.setViewName("user/home");
-
-        return modelAndView;
-    }
-
     @GetMapping(value = "/access-denied")
     public ModelAndView denyAccess() {
         ModelAndView modelAndView = new ModelAndView();
@@ -91,11 +68,5 @@ public class LoginController {
 
         return modelAndView;
     }
-
-    private User getAuthenticatedUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return userService.findUserByEmail(auth.getName());
-    }
-
 
 }

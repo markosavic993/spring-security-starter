@@ -1,15 +1,11 @@
 package com.example.demo.config;
 
+import com.example.demo.model.Roles;
 import com.example.demo.service.CustomUserPrinciple;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.web.authentication.AbstractAuthenticationTargetUrlRequestHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +22,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     private static final String LOGGED_IN_USER = "logged_in_user";
     private static final String AUTHORITIES = "authorities";
     private static final String ADMIN_HOME_PATH = "/admin/home";
+    private static final String USER_HOME_PATH = "/user/home";
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
@@ -36,11 +33,23 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 
         httpServletResponse.setStatus(HttpServletResponse.SC_OK);
 
-        httpServletResponse.sendRedirect(ADMIN_HOME_PATH);
+        if(userHasAdminRole()) {
+            httpServletResponse.sendRedirect(ADMIN_HOME_PATH);
+        } else {
+            httpServletResponse.sendRedirect(USER_HOME_PATH);
+        }
+    }
+
+    private boolean userHasAdminRole() {
+        return getLoggedInUserData().getAuthorities().contains(new SimpleGrantedAuthority(Roles.ADMIN.getValue()));
+    }
+
+    private CustomUserPrinciple getLoggedInUserData() {
+        return (CustomUserPrinciple) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     private void addLoggedInUserInfoToSession(Authentication authentication, HttpSession session) {
-        CustomUserPrinciple authUser = (CustomUserPrinciple) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CustomUserPrinciple authUser = getLoggedInUserData();
         session.setAttribute(LOGGED_IN_USER, authUser.getUsername());
         session.setAttribute(AUTHORITIES, authentication.getAuthorities());
     }

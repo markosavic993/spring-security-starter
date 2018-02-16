@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
         createRole(Roles.ADMIN);
         createRole(Roles.USER);
 
-        Role adminRole = roleRepository.findByRoleName(Roles.USER.getValue());
+        Role adminRole = roleRepository.findByRoleName(Roles.ADMIN.getValue());
         user.setRoles(new HashSet<>(Collections.singletonList(adminRole)));
 
         userRepository.save(user);
