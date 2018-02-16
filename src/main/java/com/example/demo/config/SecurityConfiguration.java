@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+import com.example.demo.model.Roles;
 import com.example.demo.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,6 +24,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -62,8 +65,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/", "/login", "/registration").permitAll()
-                .antMatchers("admin/**").hasAuthority("ADMIN")
-                .anyRequest().authenticated() // any other request needs authentication
+                .antMatchers("admin/**").hasAuthority(Roles.ADMIN.getValue())
+                .antMatchers("user/**").hasAnyAuthority(Roles.USER.getValue(), Roles.ADMIN.getValue())
+                //.anyRequest().authenticated() // any other request needs authentication
                 .and().csrf().disable()
                 .formLogin() // enables form login
                 .loginPage("/login")

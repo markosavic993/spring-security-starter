@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -54,22 +55,46 @@ public class LoginController {
             userService.saveUser(user);
             modelAndView.addObject("successMessage", "User has been successfully registered.");
             modelAndView.addObject("user", new User());
-            modelAndView.setViewName("registration");
+            modelAndView.setViewName("login");
         }
 
         return modelAndView;
     }
 
     @GetMapping(value = "/admin/home")
-    public ModelAndView home() {
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ModelAndView adminHome() {
         ModelAndView modelAndView = new ModelAndView();
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.findUserByEmail(auth.getName());
+        User user = getAuthenticatedUser();
         modelAndView.addObject("username", "Welcome " + user.getFirstName() + " " + user.getLastName());
         modelAndView.addObject("adminMessage", "Content available only for users with admin role");
         modelAndView.setViewName("admin/home");
 
         return modelAndView;
+    }
+
+    @GetMapping(value = "user/home")
+    public ModelAndView userHome() {
+        ModelAndView modelAndView = new ModelAndView();
+        User user = getAuthenticatedUser();
+        modelAndView.addObject("username", "Welcome " + user.getFirstName() + " " + user.getLastName());
+        modelAndView.addObject("userMessage", "Content available for logged in users");
+        modelAndView.setViewName("user/home");
+
+        return modelAndView;
+    }
+
+    @GetMapping(value = "/access-denied")
+    public ModelAndView denyAccess() {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("/access-denied");
+
+        return modelAndView;
+    }
+
+    private User getAuthenticatedUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return userService.findUserByEmail(auth.getName());
     }
 
 
